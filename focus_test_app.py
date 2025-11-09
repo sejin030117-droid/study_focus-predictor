@@ -195,6 +195,29 @@ def _try_predict_with_model(ans):
         return y_pred
     except:
         return None
+def upload_to_drive(local_path, drive_folder_id):
+    creds = service_account.Credentials.from_service_account_file(
+        "credentials.json",
+        scopes=["https://www.googleapis.com/auth/drive.file"]
+    )
+    service = build("drive", "v3", credentials=creds)
+
+    file_metadata = {"name": "focus_data.csv", "parents": [drive_folder_id]}
+    media = MediaFileUpload(local_path, mimetype="text/csv", resumable=True)
+
+    results = service.files().list(
+        q=f"name='focus_data.csv' and '{drive_folder_id}' in parents",
+        fields="files(id)"
+    ).execute()
+    items = results.get("files", [])
+
+    if items:
+        file_id = items[0]["id"]
+        service.files().update(fileId=file_id, media_body=media).execute()
+    else:
+        service.files().create(body=file_metadata, media_body=media, fields="id").execute()
+
+    st.sidebar.success("✅ Google Drive에 focus_data.csv 업로드 완료!")
 
 # -------------------------------
 # 페이지 ① 사용자 정보 입력
@@ -285,31 +308,6 @@ elif st.session_state["page"] == "result":
         st.info("아직 학습된 모델이 없습니다. 피드백 데이터가 쌓이면 학습 가능!")
     if st.button("👉 피드백 보기"): go("feedback")
 
-def upload_to_drive(local_path, drive_folder_id):
-    creds = service_account.Credentials.from_service_account_file(
-        "credentials.json",
-        scopes=["https://www.googleapis.com/auth/drive.file"]
-    )
-    service = build("drive", "v3", credentials=creds)
-
-    file_metadata = {"name": "focus_data.csv", "parents": [drive_folder_id]}
-    media = MediaFileUpload(local_path, mimetype="text/csv", resumable=True)
-
-    results = service.files().list(
-        q=f"name='focus_data.csv' and '{drive_folder_id}' in parents",
-        fields="files(id)"
-    ).execute()
-    items = results.get("files", [])
-
-    if items:
-        file_id = items[0]["id"]
-        service.files().update(fileId=file_id, media_body=media).execute()
-    else:
-        service.files().create(body=file_metadata, media_body=media, fields="id").execute()
-
-    st.sidebar.success("✅ Google Drive에 focus_data.csv 업로드 완료!")
-    
-
 # -------------------------------
 # 페이지 ⑥ 피드백 + 학습
 # -------------------------------
@@ -325,7 +323,7 @@ elif st.session_state["page"] == "feedback":
         df.to_csv(DATA_PATH, index=False, encoding="utf-8-sig")
         st.success("✅ 오늘의 데이터가 저장되었습니다!")
 
-        upload_to_drive("focus_data.csv", "1AbCdEfGhiJKlmNOPqrstuVWxyz")
+        upload_to_drive("focus_data.csv", "1z5CNnbVFkkpXxskgnNyvTiQ2hUTHZTKH")
 
     st.divider()
     if st.button("🔁 모델 재학습"):
