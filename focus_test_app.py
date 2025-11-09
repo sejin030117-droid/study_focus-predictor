@@ -213,9 +213,9 @@ def upload_to_drive(local_path, drive_folder_id):
 
     if items:
         file_id = items[0]["id"]
-        service.files().update(fileId=file_id, media_body=media).execute()
+        service.files().update(fileId=file_id, media_body=media).execute(num_retries=3)
     else:
-        service.files().create(body=file_metadata, media_body=media, fields="id").execute()
+        service.files().create(body=file_metadata, media_body=media, fields="id").execute(num_retries=3)
 
     st.sidebar.success("✅ Google Drive에 focus_data.csv 업로드 완료!")
 
