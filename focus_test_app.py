@@ -325,7 +325,7 @@ elif st.session_state["page"] == "feedback":
         df.to_csv(DATA_PATH, index=False, encoding="utf-8-sig")
         st.success("✅ 오늘의 데이터가 저장되었습니다!")
 
-        upload_to_drive("focus_data.csv", "1z5CNnbVFkkpXxskgnNyvTiQ2hUTHZTKH")
+        upload_to_drive("focus_data.csv", "18ALH3LQXsXseWRA7o0TDMvfMSZ7rIdGS")
 
     st.divider()
     if st.button("🔁 모델 재학습"):
