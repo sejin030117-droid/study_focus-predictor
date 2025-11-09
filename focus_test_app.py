@@ -196,19 +196,21 @@ def _try_predict_with_model(ans):
     except:
         return None
 def upload_to_drive(local_path, drive_folder_id):
+    # ✅ Streamlit Cloud에서는 파일이 아니라 Secrets에서 자격정보를 불러옵니다.
     creds = service_account.Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
-        scopes=["https://www.googleapis.com/auth/drive.file"]
+        scopes=["https://www.googleapis.com/auth/drive"]   # ← 여기가 핵심 수정!
     )
     service = build("drive", "v3", credentials=creds)
 
     file_metadata = {"name": "focus_data.csv", "parents": [drive_folder_id]}
     media = MediaFileUpload(local_path, mimetype="text/csv", resumable=True)
 
+    # ✅ 기존 파일이 있으면 덮어쓰기, 없으면 새로 업로드
     results = service.files().list(
         q=f"name='focus_data.csv' and '{drive_folder_id}' in parents",
         fields="files(id)"
-    ).execute()
+    ).execute(num_retries=3)
     items = results.get("files", [])
 
     if items:
@@ -219,7 +221,7 @@ def upload_to_drive(local_path, drive_folder_id):
 
     st.sidebar.success("✅ Google Drive에 focus_data.csv 업로드 완료!")
 
-# -------------------------------
+# -------------------------------x`
 # 페이지 ① 사용자 정보 입력
 # -------------------------------
 if st.session_state["page"] == "info":
