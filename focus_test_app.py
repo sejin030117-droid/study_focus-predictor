@@ -196,8 +196,8 @@ def _try_predict_with_model(ans):
     except:
         return None
 def upload_to_drive(local_path, drive_folder_id):
-    creds = service_account.Credentials.from_service_account_file(
-        "credentials.json",
+    creds = service_account.Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
         scopes=["https://www.googleapis.com/auth/drive.file"]
     )
     service = build("drive", "v3", credentials=creds)
