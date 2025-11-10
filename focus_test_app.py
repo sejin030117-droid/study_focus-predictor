@@ -199,7 +199,7 @@ def upload_to_drive(local_path, drive_folder_id):
     # ✅ Streamlit Cloud에서는 파일이 아니라 Secrets에서 자격정보를 불러옵니다.
     creds = service_account.Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
-        scopes=["https://www.googleapis.com/auth/drive"]   # ← 여기가 핵심 수정!
+        scopes=["https://www.googleapis.com/auth/drive"]   
     )
     service = build("drive", "v3", credentials=creds)
 
@@ -345,6 +345,7 @@ elif st.session_state["page"] == "feedback":
         from sklearn.ensemble import RandomForestRegressor
         from sklearn.model_selection import train_test_split
         from sklearn.metrics import mean_absolute_error, r2_score
+        
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         model = RandomForestRegressor(n_estimators=200, random_state=42)
         model.fit(X_train, y_train)
